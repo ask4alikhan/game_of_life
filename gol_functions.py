@@ -22,7 +22,8 @@ def get_randomized_bit():
         return 1
 
 def dead_state(height, width):
-    return [[0]*width]*height
+#    return [[0]*width]*height
+    return [[0]* width for _ in range(height)]
     
 def random_state(height, width):
     grid = dead_state(height, width)
@@ -50,38 +51,60 @@ def render(grid):
     pretty += ('_' * (len(grid[0])+2)) + '\n'
     return pretty
 
+def element_state(alive, alive_score):
+    state = 0
+    if alive:
+        if alive_score <=1:
+            state = 0
+        elif 1 < alive_score <= 3:
+            state = 1
+            print("HURRAY we got a live one here... state:{}; alive_score:{}; alive:{}".format(state, alive_score, alive))
+        elif alive_score > 3:
+            state = 0
+    else:
+        if alive_score == 3:
+            state = 1
+            print("HURRAY we got a live one here... state:{}; alive_score:{}; alive:{}".format(state, alive_score, alive))
+        else:
+            state = 0
+    pp.pprint("old_state:{}; new_state:{}; alive_score:{}".format(alive, int(state), alive_score))
+    return state
+
 def next_board_state(grid):
+    alive_neighbours = 0
     for h in range(0, len(grid)):
         for w in range(0, len(grid[h])):
-            b
-                                                                                                            
-            if grid[h][w]==0:
-                row += ' '
-            else:
-                row += '#'
-        row += '|'
-        pretty += row + '\n'
+            alive_score=len([x for x in valid_neighbours(h,w,grid) if x==1])
+            print('alive_score={}'.format(str(alive_score)))
+            grid[h][w] = element_state(grid[h][w], alive_score)
+#            if grid[h][w]==0:
+#                row += ' '
+#            else:
+#                row += '#'
+#        row += '|'
+#        pretty += row + '\n'
 
 
 def valid_neighbours(x, y, grid):
     invalid_neigh = []
     valid_neigh = []
-    neighbours = {}
-    y_max = len(grid)
-    x_max = len(grid[0])
+#    neighbours = {}
+    x_max = len(grid)
+    y_max = len(grid[0])
+#    print('x-max={}, y-max={}'.format(x_max, y_max))
     for ht in range(x-1, x+2):
         for wt in range(y-1, y+2):
             if valid_neighbour(x, y, x_max, y_max, ht, wt):
-                valid_neigh.append((ht, wt))
-                if (x, y) in neighbours:
-                    neighbours[(x, y)].append(grid[ht][wt])
-                else:
-                    neighbours[(x, y)]=[grid[ht][wt]]
+                print("valid_neighbours, x={}, y={}, x_max{}, y_max{}, ht={}, wt={}".format(x, y, x_max, y_max, ht, wt))
+                valid_neigh.append(grid[ht][wt])
+#                if (x, y) in neighbours:
+#                    neighbours[(x, y)].append(grid[ht][wt])
+#                else:
+#                    neighbours[(x, y)]=[grid[ht][wt]]
             else:
                 invalid_neigh.append((ht, wt))
-#    print("invalid_neighbours:{} \n valid_neighbours:{}".format(invalid_neigh, valid_neigh))
-    pp.pprint("neighbours={}; \n invalidNeighbours={}".format(neighbours, invalid_neigh))
-    return neighbours
+#    pp.pprint("neighbours={}; \n invalidNeighbours={}".format(neighbours, invalid_neigh))
+    return valid_neigh
 
 
 def valid_neighbour(x, y, x_max, y_max, neigh_x, neigh_y):
