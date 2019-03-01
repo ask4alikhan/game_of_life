@@ -3,15 +3,15 @@ import random
 import time
 import os
 
+"""
 def get_randomized_bit():
     rdm = random.random()
     if rdm >= 0.5:
         return 0
     else:
         return 1
-
+"""
 def dead_state(height, width):
-#    return [[0]*width]*height
     return [[0]* width for _ in range(height)]
 
 def random_state(height, width):
@@ -19,7 +19,7 @@ def random_state(height, width):
     for h in range(0,height):
         for w in range(0, width):
            grid[h][w] = (0 if random.random() <.5 else 1)
-#    print(render(grid))
+    print(render(grid))
     return grid
 
 def render(grid):
@@ -38,7 +38,7 @@ def render(grid):
     pretty += ('_' * (len(grid[0])+2)) + '\n'
     return pretty
 
-def next_element_state(alive, alive_score):
+def new_element_state(alive, alive_score):
     state = 0
     if alive:
         if alive_score <=1:
@@ -58,21 +58,22 @@ def calc_live_score(grid, x, y):
 #    neighbours =  [(m, n) for n in range(y-1, y+2) for m in range(x-1, x+2) if not(x==m and y==n) if grid[m][n] ==1]
 #    neighbours =  [grid[m][n] for n in range(y-1, y+2) for m in range(x-1, x+2) if not(x==m and y==n) if grid[m][n] ==1]
     m_max, n_max = len(grid), len(grid[0])
-    neighbours = [grid[m if m<m_max else m%m_max][n if n<n_max else n%n_max] for n in range(y-1, y+2) for m in range(x-1, x+2) if not(x==m and y==n) if grid[m][n]==1]
-    print(neighbours)
-    return len(neighbours)
+    neighbours = [grid[m if m<m_max else m%m_max][n if n<n_max else n%n_max] for n in range(y-1, y+2) for m in range(x-1, x+2) if not(x==m and y==n)]# if grid[m][n]==1]
+#    print(neighbours)
+    return len([nbr for nbr in neighbours if nbr==1])
 
-def next_board_state_short(grid):
+def next_board_state(grid):
     m, n = len(grid), len(grid[0])
     next_grid = dead_state(m,n)
-    print('Next Grid:')
-    print(next_grid)    
+#    print('Next Grid:')
+#    print(next_grid)    
     for ht in range(m):
         for wt in range(n):
-            next_grid[ht][wt] = next_element_state(grid[ht][wt], calc_live_score(grid, ht, wt))
-
+            next_grid[ht][wt] = new_element_state(grid[ht][wt], calc_live_score(grid, ht, wt))
+#    print(render(next_grid))    
     return next_grid
-    
+
+"""
 def next_board_state(grid):
     alive_neighbours = 0
     for h in range(0, len(grid)):
@@ -103,7 +104,7 @@ def circle_neigh(grid, x_max, y_max, ht, wt):
 # For getting the -1 rows use:
 # [3, 13, 23, 33]
 # init_board[-1]
-# Op: [30, 31, 32, 33]
+p# Op: [30, 31, 32, 33]
 
 def valid_neighbours(x, y, grid):
     invalid_neigh = []
@@ -133,6 +134,7 @@ def valid_neighbour(x, y, x_max, y_max, neigh_x, neigh_y):
         return False
     else:
         return True
+"""
 
 def load_board_state_csv(file_name):
     file = open("./state/" + file_name,'r')
@@ -145,8 +147,7 @@ def load_board_state(file_name):
     try:
         file = open(file_name, "r")
         init_state = [[int(num)for num in line.strip("\n")] for line in file.readlines()]
-        return init_state
-    
+        return init_state  
     except IOError:
         print("Could not read the file:{}".format(file_name))
 
@@ -155,15 +156,19 @@ if __name__ == '__main__':
     init_grid = []
     if type=="Y":
         file_name = "./state/" + input("file name:")
-        init_grid = load_board_state(file_name)
+        grid = load_board_state(file_name)
     else:
         input = input("Please enter height & width for the game matrix: ")       
         h, w = map(int, input.split())
-        init_grid = random_state(h, w)
+        grid = random_state(h, w)
 
     while True:
-#        os.system('clear')
-        time.sleep(1)
+        os.system('clear')
         pp.pprint('Game of life:')
-        print(render(next_board_state(init_grid)))
+        print(render(grid))
         pp.pprint('Hit Ctrl + c to exit')
+        grid = next_board_state(grid)
+        time.sleep(0.500)
+
+        
+
